@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 
+import spotifyAuthRoutes from './routes/auth/spotify';
+
 dotenv.config();
 
 const app = express();
@@ -11,5 +13,7 @@ app.listen(port, () => {
 });
 
 app.get("/", (req, res) => {
-   res.send("Hello World!"); 
+    res.send("Hello World!");
 });
+
+app.use("/auth/spotify", spotifyAuthRoutes);
