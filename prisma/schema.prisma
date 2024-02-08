@@ -8,4 +8,51 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_in         Int?
+  token_type         String?
+  scope              String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sharelist     Sharelist?
+  friends       User[]    @relation("Friends")
+  friendOf      User[]    @relation("Friends")
+}
+
+model Sharelist {
+    id String @id @default(uuid())
+    ownedBy User @relation(fields: [ownedById], references: [id])
+    ownedById String @unique
+    songs SharelistSong[] @relation("Songs")
+}
+
+model SharelistSong {
+    id String @id @default(uuid())
+    belongsToSharelist Sharelist @relation("Songs", fields: [belongsToSharelistId], references: [id])
+    belongsToSharelistId String
+    name String
+    album String
+    cover String
+    artists String
 }
