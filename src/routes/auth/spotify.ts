@@ -1,16 +1,18 @@
-import { Router } from 'express';
+import { type Request, Router } from 'express';
 import { randomBytes } from 'crypto';
 import querystring from 'querystring';
 import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
+import cookieParser from 'cookie-parser'
 
 const router = Router();
 const prisma = new PrismaClient();
 
-let oAuthState = "";
+
+router.use(cookieParser(process.env.COOKIE_SECRET))
 
 router.get("/login", (req, res) => {
-    oAuthState = randomBytes(8).toString('hex');
+    const stateParam = randomBytes(8).toString('hex');
     const scope = "user-top-read";
 
     res.redirect('https://accounts.spotify.com/authorize?' +
@@ -31,7 +33,13 @@ interface SpotifyAuthRessult {
     scope: string;
 }
 
-router.get("/callback", async (req, res) => {
+interface SpotifyAuthInit {
+    code?: string,
+    error?: string,
+    state: string
+}
+
+router.get("/callback", async (req: Request<{}, {}, {}, SpotifyAuthInit>, res) => {
     const reqState = req.query.state;
 
     if (reqState === null) {
@@ -74,7 +82,7 @@ router.get("/callback", async (req, res) => {
             }
         })
 
-        const account = await prisma.account.create({
+        await prisma.account.create({
             data: {
                 type: profile.data.type,
                 userId: user.id,
