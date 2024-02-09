@@ -82,7 +82,7 @@ router.get("/callback", async (req, res) => {
                 providerAccountId: profile.data.id,
                 refresh_token: result.data.refresh_token,
                 access_token: result.data.access_token,
-                expires_in: result.data.expires_in,
+                expires_at: (Date.now() / 1000) + result.data.expires_in,
                 token_type: result.data.token_type,
                 scope: result.data.scope,
             }
