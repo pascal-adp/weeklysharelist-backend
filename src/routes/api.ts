@@ -1,5 +1,5 @@
 import { Router } from "express";
-import spotifyAuthRoutes from './auth/spotify';
+import spotifyAuthRoutes from './auth/spotifyAuth';
 
 const router = Router();
 
