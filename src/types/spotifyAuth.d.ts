@@ -15,6 +15,10 @@ export type SpotifyUserAuthorizationResponse =
     | { code: string; state: string }
     | { error: string; state: string };
 
+
+/**
+ * Custom decleration to fit database schema
+ */
 export interface SpotifyUserProfileResponse extends SpotifyApi.UserObjectPublic {
     images: string;
 };
