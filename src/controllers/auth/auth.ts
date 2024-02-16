@@ -1,15 +1,11 @@
-import { type Request, type Response, Router } from 'express';
-import cookieParser from 'cookie-parser'
+import { type Request, type Response } from 'express';
 import { randomBytes } from 'crypto';
 import querystring from 'querystring';
-import { type SpotifyUserAuthorizationResponse } from '../../types/spotifyAuth';
+
+import { type SpotifyUserAuthorizationResponse } from '@/types/spotifyAuth';
 import { createDbAccount, createDbUser, getSpotifyProfile, requestSpotifyAccessToken } from '@/controllers/auth/spotifyAuthController';
 
-const router = Router();
-
-router.use(cookieParser(process.env.COOKIE_SECRET))
-
-router.get("/login", (_, res: Response) => {
+export const loginController = async (res: Response) => {
     const stateParam = randomBytes(8).toString('hex');
     const spotifyAuthScope = "user-top-read";
 
@@ -24,9 +20,9 @@ router.get("/login", (_, res: Response) => {
             redirect_uri: process.env.URL + "/api/v1/auth/spotify/callback",
             state: stateParam
         }));
-});
+}
 
-router.get("/callback", async (req: Request<{}, {}, {}, SpotifyUserAuthorizationResponse>, res) => {
+export const callbackController = async (req: Request<{}, {}, {}, SpotifyUserAuthorizationResponse>, res: Response) => {
     const { stateParam } = req.signedCookies;
 
     if (req.query.state !== stateParam) {
@@ -64,8 +60,9 @@ router.get("/callback", async (req: Request<{}, {}, {}, SpotifyUserAuthorization
         scope: token.scope,
     });
 
+    req.session.userId = dbUser.id;
+    req.session.spotifyAccessToken = token.access_token;
+
     //Redirect user to the frontend
     res.json({ token: token.access_token }).redirect(process.env.FRONTEND_URL!);
-})
-
-export default router;
+}
