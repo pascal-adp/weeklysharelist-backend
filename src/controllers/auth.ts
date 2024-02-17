@@ -3,9 +3,12 @@ import { randomBytes } from 'crypto';
 import querystring from 'querystring';
 
 import { type SpotifyUserAuthorizationResponse } from '@/types/spotifyAuth';
-import { createDbAccount, createDbUser, getSpotifyProfile, requestSpotifyAccessToken } from '@/controllers/auth/spotifyAuthController';
 
-export const loginController = async (res: Response) => {
+import { createDbAccount, createDbUser } from '@/services/db';
+import { getSpotifyProfile, requestSpotifyAccessToken } from '@/services/spotify';
+
+// Always provide request and response types. Otherwise, 'res.cookie' will not be recognized
+export const loginController = async (req: Request, res: Response) => {
     const stateParam = randomBytes(8).toString('hex');
     const spotifyAuthScope = "user-top-read";
 
@@ -23,7 +26,9 @@ export const loginController = async (res: Response) => {
 }
 
 export const callbackController = async (req: Request<{}, {}, {}, SpotifyUserAuthorizationResponse>, res: Response) => {
+    console.log(req.signedCookies)
     const { stateParam } = req.signedCookies;
+    console.log('HELLO')
 
     if (req.query.state !== stateParam) {
         res.status(403).send("State mismatch, potential CSRF detected");
@@ -64,5 +69,5 @@ export const callbackController = async (req: Request<{}, {}, {}, SpotifyUserAut
     req.session.spotifyAccessToken = token.access_token;
 
     //Redirect user to the frontend
-    res.json({ token: token.access_token }).redirect(process.env.FRONTEND_URL!);
+    res.redirect(process.env.FRONTEND_URL!);
 }

@@ -17,13 +17,20 @@ const app = express();
 
 const port = process.env.PORT || 8000;
 
+
+declare module "express-session" {
+    interface SessionData {
+      userId: string;
+      spotifyAccessToken: string;
+    }
+}
 app.use(sessionMiddleware)
 app.use(corsMiddleware)
-app.use(helmet())
+// app.use(helmet())
 
 app.use('/api/v1', apiRoutes)
 
-app.use(errorMiddleware)
+// app.use(errorMiddleware)
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

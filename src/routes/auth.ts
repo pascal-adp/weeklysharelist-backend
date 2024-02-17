@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser';
 
-import { callbackController, loginController } from '@/controllers/auth/auth';
+import { callbackController, loginController } from '@/controllers/auth';
 
 const router = Router();
 
