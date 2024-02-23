@@ -21,6 +21,25 @@ export const requestSpotifyAccessToken = async (authCode: string): Promise<Spoti
     }
 }
 
+export const getSpotifyRefreshToken = async (refreshToken: string) => {
+    try {
+        const response = await axios.post<SpotifyAccessTokenResponse>('https://accounts.spotify.com/api/token', {
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+        },
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Basic ' + (Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64'))
+                },
+            })
+        return response.data;
+    }
+    catch (error) {
+        throw new Error("Failed to get refresh token from Spotify: " + error);
+    }
+}
+
 export const getSpotifyProfile = async (accessToken: string): Promise<SpotifyUserProfileResponse> => {
     try {
         const response = await axios.get<SpotifyApi.UserObjectPublic>('https://api.spotify.com/v1/me', {
@@ -44,3 +63,25 @@ export const getSpotifyProfile = async (accessToken: string): Promise<SpotifyUse
         throw new Error("Failed to get user profile from Spotify: " + error);
     }
 }
+
+export const getSpotifyTopTracks = async (accessToken: string) => {
+    const URL = "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10&offset=0";
+    try {
+        const response = await axios.get<SpotifyApi.UsersTopTracksResponse>(URL, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        // console.error(error);
+    }
+};
+
+export const concatSpotifyArtists = (artists: SpotifyApi.ArtistObjectSimplified[]) => {
+    const artistsNames: string[] = [];
+    artists.forEach((artist) => {
+        artistsNames.push(artist.name);
+    });
+    return artistsNames.join(", ");
+};

@@ -48,3 +48,35 @@ export const createDbAccount = async (data: Prisma.AccountCreateInput) => {
         throw new Error("Failed to create account in database: " + error);
     }
 }
+
+export const updateDbAccountToken = async (accountId: string, accessToken: string, refreshToken: string, expiresAt: number) => {
+    try {
+        await prisma.account.update({
+            where: {
+                id: accountId
+            },
+            data: {
+                access_token: accessToken,
+                refresh_token: refreshToken,
+                expires_at: expiresAt
+            }
+        })
+    }
+    catch (error) {
+        throw new Error("Failed to update account token in database: " + error);
+    }
+}
+
+export const getDbAccountByUserId = async (userId: string) => {
+    try {
+        const account = await prisma.account.findFirst({
+            where: {
+                userId: userId
+            }
+        })
+        return account;
+    }
+    catch (error) {
+        throw new Error("Failed to get account from database: " + error);
+    }
+}

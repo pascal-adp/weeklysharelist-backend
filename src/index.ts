@@ -26,7 +26,7 @@ declare module "express-session" {
 }
 app.use(sessionMiddleware)
 app.use(corsMiddleware)
-// app.use(helmet())
+app.use(helmet())
 
 app.use('/api/v1', apiRoutes)
 
