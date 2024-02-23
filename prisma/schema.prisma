@@ -51,9 +51,10 @@ model Sharelist {
 model SharelistSong {
   id                   String    @id @default(uuid())
   belongsToSharelist   Sharelist @relation("Songs", fields: [belongsToSharelistId], references: [id])
-  belongsToSharelistId String
+  belongsToSharelistId String    @unique
   name                 String
   album                String
   cover                String
   artists              String
+  spotifyTrackId       String
 }

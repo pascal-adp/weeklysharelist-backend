@@ -80,3 +80,55 @@ export const getDbAccountByUserId = async (userId: string) => {
         throw new Error("Failed to get account from database: " + error);
     }
 }
+
+export const getDbUserByUserId = async (userId: string) => {
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId
+            }
+        })
+        return user;
+    }
+    catch (error) {
+        throw new Error("Failed to get user from database: " + error);
+    }
+};
+
+export const getSharelistByUserId = async (userId: string) => {
+    try {
+        const sharelist = await prisma.sharelist.findUnique({
+            where: {
+                ownedById: userId
+            }
+        })
+        return sharelist;
+    }
+    catch (error) {
+        throw new Error("Failed to get sharelist from database: " + error);
+    }
+};
+
+export const addSongToSharelist = async (userId: string, songData: Prisma.SharelistSongCreateInput) => {
+    try {
+        const sharelist = await getSharelistByUserId(userId);
+
+        if (!sharelist) {
+            throw new Error("Sharelist does not exist");
+        }
+
+        await prisma.sharelistSong.create({
+            data: {
+                belongsToSharelistId: sharelist.id,
+                name: songData.name,
+                album: songData.album,
+                artists: songData.artists,
+                cover:  songData.cover,
+                spotifyTrackId: songData.spotifyTrackId,
+            }
+        })
+    }
+    catch (error) {
+        throw new Error("Failed to add song to sharelist: " + error);
+    }
+};
