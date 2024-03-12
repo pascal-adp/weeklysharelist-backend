@@ -109,7 +109,7 @@ export const getSharelistByUserId = async (userId: string) => {
     }
 };
 
-export const addSongToSharelist = async (userId: string, songData: Prisma.SharelistSongCreateInput) => {
+export const addSongToSharelist = async (userId: string, songData: any) => {
     try {
         const sharelist = await getSharelistByUserId(userId);
 
@@ -132,3 +132,17 @@ export const addSongToSharelist = async (userId: string, songData: Prisma.Sharel
         throw new Error("Failed to add song to sharelist: " + error);
     }
 };
+
+export const createSharelist = async (userId: string) => {
+    try {
+        const sharelist = await prisma.sharelist.create({
+            data: {
+                ownedById: userId
+            }
+        })
+        return sharelist;
+    }
+    catch (error) {
+        throw new Error("Failed to create sharelist: " + error);
+    }
+}

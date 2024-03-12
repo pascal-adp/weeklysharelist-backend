@@ -65,8 +65,18 @@ export const callbackController = async (req: Request<{}, {}, {}, SpotifyUserAut
         scope: token.scope,
     });
 
+    console.log(`DB User id: ${dbUser.id}`)
+
     req.session.userId = dbUser.id;
     req.session.spotifyAccessToken = token.access_token;
+
+    // Save the session manually
+    req.session.save(err => {
+        if (err) {
+            // Handle error
+            console.log(err);
+        }
+    });
 
     //Redirect user to the frontend
     res.redirect(process.env.FRONTEND_URL!);
