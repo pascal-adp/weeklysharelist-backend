@@ -45,16 +45,24 @@ model Sharelist {
   id        String          @id @default(uuid())
   ownedBy   User            @relation(fields: [ownedById], references: [id])
   ownedById String          @unique
-  songs     SharelistSong[] @relation("Songs")
+  
+  songs     SharelistSong[] 
 }
 
 model SharelistSong {
   id                   String    @id @default(uuid())
-  belongsToSharelist   Sharelist @relation("Songs", fields: [belongsToSharelistId], references: [id])
-  belongsToSharelistId String    @unique
+  belongsToSharelist   Sharelist @relation(fields: [belongsToSharelistId], references: [id])
+  belongsToSharelistId String
+  song                 Song      @relation(fields: [songId], references: [id])
+  songId               String
+}
+
+model Song {
+  id                   String          @id @default(uuid())
   name                 String
   album                String
   cover                String
   artists              String
-  spotifyTrackId       String
+  spotifyTrackId       String          @unique
+  sharelists           SharelistSong[]
 }

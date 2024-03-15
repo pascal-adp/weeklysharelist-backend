@@ -12,7 +12,7 @@ export const authenticatonMiddleware = async (req: Request, res: Response, next:
     }
     else {
         const account = await getDbAccountByUserId(req.session.userId!)
-        console.log(req.session)
+        // console.log(req.session)
 
         if (account) {
             if (account.expires_at! < (Date.now() / 1000)) {

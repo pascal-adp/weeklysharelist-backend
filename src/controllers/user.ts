@@ -5,7 +5,7 @@ import { getDbUserByUserId } from '@/services/db';
 export const getUserInfoController = async (req: Request, res: Response) => {
     const userId = req.session.userId!;
     const user = await getDbUserByUserId(userId);
-    console.log(user)
+    // console.log(user)
 
     if (user) {
         res.status(200).json({

@@ -26,9 +26,7 @@ export const loginController = async (req: Request, res: Response) => {
 }
 
 export const callbackController = async (req: Request<{}, {}, {}, SpotifyUserAuthorizationResponse>, res: Response) => {
-    console.log(req.signedCookies)
     const { stateParam } = req.signedCookies;
-    console.log('HELLO')
 
     if (req.query.state !== stateParam) {
         res.status(403).send("State mismatch, potential CSRF detected");
@@ -64,8 +62,6 @@ export const callbackController = async (req: Request<{}, {}, {}, SpotifyUserAut
         token_type: token.token_type,
         scope: token.scope,
     });
-
-    console.log(`DB User id: ${dbUser.id}`)
 
     req.session.userId = dbUser.id;
     req.session.spotifyAccessToken = token.access_token;

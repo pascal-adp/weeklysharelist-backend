@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient, type Song } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -117,14 +117,25 @@ export const addSongToSharelist = async (userId: string, songData: any) => {
             throw new Error("Sharelist does not exist");
         }
 
-        await prisma.sharelistSong.create({
+        const song = await prisma.song.create({
             data: {
-                belongsToSharelistId: sharelist.id,
                 name: songData.name,
                 album: songData.album,
                 artists: songData.artists,
                 cover:  songData.cover,
                 spotifyTrackId: songData.spotifyTrackId,
+            }
+        })
+
+        if (!song) {
+            throw new Error("Failed to add song to database");
+            return
+        }
+
+        await prisma.sharelistSong.create({
+            data: {
+                belongsToSharelistId: sharelist.id,
+                songId: song.id
             }
         })
     }
@@ -144,5 +155,68 @@ export const createSharelist = async (userId: string) => {
     }
     catch (error) {
         throw new Error("Failed to create sharelist: " + error);
+    }
+}
+
+export const getSharelistSongsBySharelistId = async (sharelistId: string) => {
+    try {
+        const sharelist = await prisma.sharelist.findUnique({
+            where: {
+                id: sharelistId
+            },
+            select: {
+                songs: {
+                    include: {
+                        song: true
+                    }
+                }
+            }
+        })
+        if (!sharelist) {
+            throw new Error("Sharelist does not exist");
+        }
+
+        const songs = sharelist.songs.map((sharelistSong) => sharelistSong.song);
+
+        return songs;
+    }
+    catch (error) {
+        throw new Error("Failed to get sharelist songs: " + error);
+    }
+}
+
+export const deleteSongFromSharelist = async (sharelistId: string, spotifyTrackId: string) => {
+    try {
+        const song = await prisma.song.findUnique({
+            where: {
+                spotifyTrackId: spotifyTrackId
+            }
+        })
+
+        if (!song) {
+            throw new Error("Song does not exist");
+            return
+        }
+
+        const link = await prisma.sharelistSong.findFirst({
+            where: {
+                belongsToSharelistId: sharelistId,
+                songId: song.id
+            }
+        })
+
+        if (!link) {
+            throw new Error("Link does not exist");
+            return
+        }
+
+        await prisma.sharelistSong.delete({
+            where: {
+                id: link.id
+            }
+        })
+    }
+    catch (error) {
+        throw new Error("Failed to delete song from sharelist: " + error);
     }
 }
