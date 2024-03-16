@@ -1,4 +1,4 @@
-import { addSongToSharelist, createSharelist, deleteSongFromSharelist, getSharelistByUserId, getSharelistSongsBySharelistId } from '@/services/db';
+import { addSongToCache, addSongToSharelist, createSharelist, deleteSongFromSharelist, getSharelistByUserId, getSharelistSongsBySharelistId, getSongBySpotifyTrackId } from '@/services/db';
 import { type Request, type Response } from 'express';
 
 export const addSongController = async (req: Request<{}, {}>, res: Response) => {
@@ -10,20 +10,33 @@ export const addSongController = async (req: Request<{}, {}>, res: Response) => 
     }
 
     sharelist = await getSharelistByUserId(req.session.userId!);
+
+    if(!sharelist) {
+        res.status(500).json({ error: "Failed to retrieve sharelist" });
+        return;
+    }
+
     const sharelistSongs = await getSharelistSongsBySharelistId(sharelist!.id)
 
     if (sharelistSongs.length >= 3) {
         res.status(400).json({ error: "Sharelist is full" });
         return;
     }
-    await addSongToSharelist(req.session.userId!, {
-        name: name,
-        album: album,
-        artists: artists,
-        cover: cover,
-        spotifyTrackId: spotifyTrackId,
-        belongsToSharelist: sharelist!.id
-    });
+
+    let song = await getSongBySpotifyTrackId(spotifyTrackId);
+
+    if (!song) {
+        song = await addSongToCache({
+            name: name,
+            album: album,
+            artists: artists,
+            cover: cover,
+            spotifyTrackId: spotifyTrackId,
+        })
+    }
+
+    await addSongToSharelist(req.session.userId!, song.id);
+    res.status(200).send({ message: "Song added to sharelist" });
 };
 
 export const getSharelistSongsController = async (req: Request, res: Response) => {
@@ -42,4 +55,5 @@ export const getSharelistSongsController = async (req: Request, res: Response) =
 export const deleteSongController = async (req: Request, res: Response) => {
     const sharelist = await getSharelistByUserId(req.session.userId!);
     await deleteSongFromSharelist(sharelist!.id, req.params.spotifyTrackId);
+    res.status(200).end();
 }

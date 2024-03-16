@@ -109,7 +109,7 @@ export const getSharelistByUserId = async (userId: string) => {
     }
 };
 
-export const addSongToSharelist = async (userId: string, songData: any) => {
+export const addSongToSharelist = async (userId: string, songId: string) => {
     try {
         const sharelist = await getSharelistByUserId(userId);
 
@@ -117,25 +117,10 @@ export const addSongToSharelist = async (userId: string, songData: any) => {
             throw new Error("Sharelist does not exist");
         }
 
-        const song = await prisma.song.create({
-            data: {
-                name: songData.name,
-                album: songData.album,
-                artists: songData.artists,
-                cover:  songData.cover,
-                spotifyTrackId: songData.spotifyTrackId,
-            }
-        })
-
-        if (!song) {
-            throw new Error("Failed to add song to database");
-            return
-        }
-
         await prisma.sharelistSong.create({
             data: {
                 belongsToSharelistId: sharelist.id,
-                songId: song.id
+                songId: songId
             }
         })
     }
@@ -218,5 +203,33 @@ export const deleteSongFromSharelist = async (sharelistId: string, spotifyTrackI
     }
     catch (error) {
         throw new Error("Failed to delete song from sharelist: " + error);
+    }
+}
+
+export const getSongBySpotifyTrackId = async (spotifyTrackId: string) => {
+    try {
+        const song = await prisma.song.findUnique({
+            where: {
+                spotifyTrackId: spotifyTrackId
+            }
+        })
+        return song;
+    }
+    catch (error) {
+        throw new Error("Failed to get song from database: " + error);
+    }
+}
+
+export const addSongToCache = async (songData: any) => {
+    try {
+        const song = await prisma.song.create({
+            data: {
+                ...songData
+            }
+        })
+        return song;
+    }
+    catch (error) {
+        throw new Error("Failed to add song to cache: " + error);
     }
 }
