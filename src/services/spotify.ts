@@ -78,6 +78,20 @@ export const getSpotifyTopTracks = async (accessToken: string) => {
     }
 };
 
+export const searchSpotifyTrack = async (accessToken: string, query: string) => {
+    const URL = `https://api.spotify.com/v1/search?q=${query}&type=track&limit=5`;
+    try {
+        const response = await axios.get<SpotifyApi.SearchResponse>(URL, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(`Failed to get top tracks from Spotify: ${error}`);
+    }
+}
+
 export const concatSpotifyArtists = (artists: SpotifyApi.ArtistObjectSimplified[]) => {
     const artistsNames: string[] = [];
     artists.forEach((artist) => {
