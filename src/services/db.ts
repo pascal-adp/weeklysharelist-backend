@@ -233,3 +233,25 @@ export const addSongToCache = async (songData: any) => {
         throw new Error("Failed to add song to cache: " + error);
     }
 }
+
+// SELECT friends FROM Users WHERE userId
+export const getAllFriendsByUserId = async (userId: string) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                friends: {
+                    include: {
+                        friends: true
+                    }
+                }
+            }
+        })
+        return user?.friends
+    }
+    catch(error) {
+        throw new Error("Failed to get all friends: " + error)
+    }
+}
