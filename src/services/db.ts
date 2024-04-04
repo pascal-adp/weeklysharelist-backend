@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient, type Song } from "@prisma/client";
+import pg from "pg";
 
 const prisma = new PrismaClient();
 
