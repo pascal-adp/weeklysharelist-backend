@@ -1,5 +1,13 @@
 import { Prisma, PrismaClient, type Song } from "@prisma/client";
-import pg from "pg";
+// import pg from "pg";
+
+// const pool = new pg.Pool({
+//     user: process.env.DB,
+//     host: process.env.DB_HOST,
+//     database: process.env.DB_NAME,
+//     password: process.env.DB_PASSWORD,
+//     port: 5432
+// })
 
 const prisma = new PrismaClient();
 
@@ -254,5 +262,22 @@ export const getAllFriendsByUserId = async (userId: string) => {
     }
     catch(error) {
         throw new Error("Failed to get all friends: " + error)
+    }
+}
+
+export const addFriendUUID = async (userId: string, uuid: string, expires_at: number) => {
+    try {
+        const res = await prisma.userShared.create({
+            data: {
+                userId: userId,
+                userUUID: uuid,
+                expires_at: expires_at
+            }
+        })
+        console.log(res)
+        return res;
+    }
+    catch(error) {
+        throw new Error("Failed to add friend uuid: " + error)
     }
 }

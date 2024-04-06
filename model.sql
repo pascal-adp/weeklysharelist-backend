@@ -1,0 +1,40 @@
+CREATE TABLE accounts (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    type VARCHAR(255) NOT NULL,
+    provider VARCHAR(255) NOT NULL,
+    provider_id VARCHAR(255) NOT NULL UNIQUE,
+    refresh_token VARCHAR(255) NOT NULL,
+    access_token VARCHAR(255) NOT NULL,
+    token_type VARCHAR(255) NOT NULL,
+    scope VARCHAR(255),
+    expires_in INTEGER NOT NULL,
+);
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    account_id INTEGER REFERENCES account(id) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    image VARCHAR(255),
+    createdAt TIMESTAMP NOT NULL,
+    updatedAt TIMESTAMP NOT NULL,
+);
+
+CREATE TABLE sharelists (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    user_id INTEGER REFERENCES user(id) ON DELETE CASCADE UNIQUE NOT NULL,
+);
+
+CREATE TABLE sharelist_songs (
+    PRIMARY KEY (sharelist_id, song_id)
+    sharelist_id INTEGER REFERENCES sharelist(id) ON DELETE CASCADE,
+    song_id INTEGER REFERENCES song(id) ON DELETE CASCADE,
+);
+
+CREATE TABLE songs (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    name VARCHAR(255) NOT NULL,
+    album VARCHAR(255),
+    cover VARCHAR(255),
+    artists VARCHAR(255) NOT NULL,
+    spotifyTrackId VARCHAR(255) NOT NULL,
+);

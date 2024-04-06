@@ -5,6 +5,7 @@ import sessionRoutes from '@/routes/session';
 import userRoutes from '@/routes/protected/user';
 import spotifyRoutes from '@/routes/protected/spotify';
 import sharelistRoutes from '@/routes/protected/sharelist';
+import friendsRoutes from '@/routes/protected/friends';
 
 import { authenticatonMiddleware } from "@/middlewares/authentication";
 
@@ -19,5 +20,6 @@ router.use(authenticatonMiddleware)
 router.use("/user", userRoutes);
 router.use("/spotify", spotifyRoutes);
 router.use("/sharelist", sharelistRoutes);
+router.use("/friends", friendsRoutes);
 
 export default router
