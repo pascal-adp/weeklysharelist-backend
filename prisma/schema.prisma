@@ -1,13 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  url       = env("DIRECT_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -17,45 +14,43 @@ model Account {
   type              String
   provider          String
   providerAccountId String  @unique
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
 model User {
-  id               String       @id @default(cuid())
+  id               String      @id @default(cuid())
   name             String?
-  spotifyAccountId String?      @unique
+  spotifyAccountId String?     @unique
   image            String?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
   accounts         Account[]
   sharelist        Sharelist?
-  friends          User[]       @relation("Friends")
-  friendOf         User[]       @relation("Friends")
-  UserShared       UserShared[]
+  UserShared       UserShared?
+  User_A           User[]      @relation("Friends")
+  User_B           User[]      @relation("Friends")
 }
 
 model Sharelist {
-  id        String @id @default(uuid())
-  ownedBy   User   @relation(fields: [ownedById], references: [id])
-  ownedById String @unique
-
-  songs SharelistSong[]
+  id        String          @id @default(uuid())
+  ownedById String          @unique
+  ownedBy   User            @relation(fields: [ownedById], references: [id])
+  songs     SharelistSong[]
 }
 
 model SharelistSong {
   id                   String    @id @default(uuid())
-  belongsToSharelist   Sharelist @relation(fields: [belongsToSharelistId], references: [id])
   belongsToSharelistId String
-  song                 Song      @relation(fields: [songId], references: [id])
   songId               String
+  belongsToSharelist   Sharelist @relation(fields: [belongsToSharelistId], references: [id])
+  song                 Song      @relation(fields: [songId], references: [id])
 }
 
 model Song {
@@ -69,8 +64,8 @@ model Song {
 }
 
 model UserShared {
-  userId String @id
-  user   User   @relation(fields: [userId], references: [id])
-  userUUID String
+  userId     String @id
+  userUUID   String
   expires_at Int
+  user       User   @relation(fields: [userId], references: [id])
 }

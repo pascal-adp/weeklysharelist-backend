@@ -245,24 +245,24 @@ export const addSongToCache = async (songData: any) => {
 
 // SELECT friends FROM Users WHERE userId
 export const getAllFriendsByUserId = async (userId: string) => {
-    try {
-        const user = await prisma.user.findUnique({
-            where: {
-                id: userId
-            },
-            select: {
-                friends: {
-                    include: {
-                        friends: true
-                    }
-                }
-            }
-        })
-        return user?.friends
-    }
-    catch(error) {
-        throw new Error("Failed to get all friends: " + error)
-    }
+    // try {
+    //     const user = await prisma.user.findUnique({
+    //         where: {
+    //             id: userId
+    //         },
+    //         select: {
+    //             friends: {
+    //                 include: {
+    //                     friends: true
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     return user?.friends
+    // }
+    // catch(error) {
+    //     throw new Error("Failed to get all friends: " + error)
+    // }
 }
 
 export const addFriendUUID = async (userId: string, uuid: string, expires_at: number) => {
